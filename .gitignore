@@ -16,3 +16,5 @@ venv/
 # Local Data
 daily_digest.md
 feedback_log.json
+.gemini/
+
