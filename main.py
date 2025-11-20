@@ -1,7 +1,7 @@
 import os
 import json
 from dotenv import load_dotenv
-from client import ReadwiseClient
+from dotenv import load_dotenv
 from agent import MorningDigestAgent
 from feedback import FeedbackManager
 
@@ -33,19 +33,17 @@ def main():
     print("Starting Morning Digest Agent (AI Mode)...")
     
     # 1. Init components
-    client = ReadwiseClient() 
     agent = MorningDigestAgent()
     feedback_manager = FeedbackManager()
     
-    # 2. Fetch Data
-    print("Fetching documents...")
-    documents = client.fetch_last_24h()
-    print(f"Fetched {len(documents)} documents.")
+    # 2. AI Execution (Fetch + Select)
+    print("Running Agent (Tool Use Mode)...")
+    top_5 = agent.run()
     
-    # 3. AI Selection
-    print("Asking Gemini to select Top 5...")
-    # In a real scenario, we might filter 'read' items here using feedback_manager
-    top_5 = agent.select_top_5(documents)
+    if not top_5:
+        print("No articles selected or error occurred.")
+        return
+
     
     # 4. Generate Report
     report = generate_markdown_email(top_5)
