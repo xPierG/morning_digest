@@ -20,7 +20,7 @@ class MorningDigestAgent:
         self.tools = [self._fetch_readwise]
         
         self.model = genai.GenerativeModel(
-            'gemini-1.5-flash',
+            'gemini-flash-latest',
             tools=self.tools
         )
 
