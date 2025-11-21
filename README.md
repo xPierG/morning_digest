@@ -1,17 +1,20 @@
 # 🌅 Morning Digest AI Agent
 
-An intelligent agent that curates a daily "Top 5" reading list from your **Readwise Reader** account, powered by **Google Gemini 1.5 Flash**.
+An intelligent agent that curates a daily "Top 5" reading list from your **Readwise Reader** account, powered by **Google Gemini 2.0 Flash** and built with the **Google Agent Development Kit (ADK)**.
 
 ## Features
 
-- **🧠 AI-Powered Selection**: Uses Gemini 1.5 Flash to semantically analyze and select the most relevant articles.
-- **🛠️ Agentic Tool Use**: The agent autonomously calls the Readwise API to fetch data when needed.
+- **🧠 Modular ADK Architecture**: Built with Google ADK using specialized `LlmAgent` components orchestrated by a `SequentialAgent`.
+- **🤖 Two-Stage Pipeline**:
+  - **SelectorAgent**: Autonomously fetches and selects exactly 5 articles based on predefined criteria.
+  - **EnricherAgent**: Enriches selected articles with full content and generates 3 key takeaways for high-priority items.
 - **📂 Dual Source**: Fetches content from both your **Feed** (RSS/Newsletters) and **Library** (Saved/Inbox).
 - **🎯 Smart Categorization**:
   - **🤯 Must Read**: Novel concepts and new signals (from Feed).
   - **📌 Business**: Relevant to your specific domain (e.g., AI, Fintech).
   - **🧘 Long Read**: Deep dives for personal development (from Library).
-- **🐳 Cloud Ready**: Fully containerized with Docker, ready for Google Cloud Run.
+  - **💡 Other**: Interesting articles for CTO/CAIO.
+- **🔧 Robust Error Handling**: Automatic JSON repair and async/await support for reliable execution.
 
 ## Setup
 
@@ -41,9 +44,10 @@ An intelligent agent that curates a daily "Top 5" reading list from your **Readw
 
 ### Run Locally
 ```bash
+source .venv/bin/activate
 python main.py
 ```
-The agent will fetch the latest articles, select the top 5, and generate a `daily_digest.md` file.
+The agent will fetch the latest articles, select the top 5, enrich them with key takeaways, and generate a `daily_digest.md` file.
 
 ### Run with Docker
 ```bash
@@ -53,9 +57,13 @@ docker run --env-file .env morning-digest
 
 ## Architecture
 
-- **`agent.py`**: Contains the `MorningDigestAgent` class which uses Gemini with Tool Use capabilities.
-- **`client.py`**: Handles interactions with the Readwise API.
-- **`main.py`**: Entry point that initializes the agent and runs the workflow.
+The project uses **Google Agent Development Kit (ADK)** with a modular, sequential pipeline:
+
+- **`agents/selector.py`**: `SelectorAgent` - Fetches articles from Readwise and selects exactly 5 based on category criteria.
+- **`agents/enricher.py`**: `EnricherAgent` - Enriches "Must Read" and "Long Read" articles with full content and generates 3 key takeaways.
+- **`agent.py`**: `MorningDigestPipeline` - A `SequentialAgent` that orchestrates the two specialized agents.
+- **`client.py`**: Handles interactions with the Readwise API (fetching articles and full content).
+- **`main.py`**: Entry point using `InMemoryRunner` to execute the ADK pipeline asynchronously.
 
 ## License
 MIT
