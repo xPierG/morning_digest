@@ -3,3 +3,6 @@ python-dotenv
 google-generativeai
 google-adk
 google-genai
+requests
+python-dotenv
+markdown==3.5.1

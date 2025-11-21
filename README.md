@@ -8,6 +8,7 @@ An intelligent agent that curates a daily "Top 5" reading list from your **Readw
 - **🤖 Two-Stage Pipeline**:
   - **SelectorAgent**: Autonomously fetches and selects exactly 5 articles based on predefined criteria.
   - **EnricherAgent**: Enriches selected articles with full content and generates 3 key takeaways for high-priority items.
+- **📧 Email Delivery**: Automatically sends the digest as a beautifully formatted HTML email via SMTP.
 - **📂 Dual Source**: Fetches content from both your **Feed** (RSS/Newsletters) and **Library** (Saved/Inbox).
 - **🎯 Smart Categorization**:
   - **🤯 Must Read**: Novel concepts and new signals (from Feed).
@@ -32,6 +33,12 @@ An intelligent agent that curates a daily "Top 5" reading list from your **Readw
    Edit `.env` and fill in:
    - `READWISE_TOKEN`: Get it from [Readwise Access Token](https://readwise.io/access_token).
    - `GOOGLE_API_KEY`: Get it from [Google AI Studio](https://aistudio.google.com/app/apikey).
+   - **Email Configuration** (for SMTP delivery):
+     - `EMAIL_SENDER_ADDRESS`: Your Gmail address
+     - `EMAIL_SENDER_APP_PASSWORD`: Gmail App Password ([How to generate](https://support.google.com/accounts/answer/185833))
+     - `EMAIL_RECIPIENT_ADDRESS`: Email address to receive the digest
+     - `SMTP_SERVER`: `smtp.gmail.com` (for Gmail)
+     - `SMTP_PORT`: `587` (for TLS)
 
 3. **Install Dependencies**:
    ```bash
@@ -47,7 +54,7 @@ An intelligent agent that curates a daily "Top 5" reading list from your **Readw
 source .venv/bin/activate
 python main.py
 ```
-The agent will fetch the latest articles, select the top 5, enrich them with key takeaways, and generate a `daily_digest.md` file.
+The agent will fetch the latest articles, select the top 5, enrich them with key takeaways, and **send them via email** to the configured recipient.
 
 ### Run with Docker
 ```bash
@@ -63,7 +70,8 @@ The project uses **Google Agent Development Kit (ADK)** with a modular, sequenti
 - **`agents/enricher.py`**: `EnricherAgent` - Enriches "Must Read" and "Long Read" articles with full content and generates 3 key takeaways.
 - **`agent.py`**: `MorningDigestPipeline` - A `SequentialAgent` that orchestrates the two specialized agents.
 - **`client.py`**: Handles interactions with the Readwise API (fetching articles and full content).
-- **`main.py`**: Entry point using `InMemoryRunner` to execute the ADK pipeline asynchronously.
+- **`notification.py`**: Manages email delivery via SMTP with TLS.
+- **`main.py`**: Entry point using `InMemoryRunner` to execute the ADK pipeline asynchronously, converts Markdown to HTML, and sends email.
 
 ## License
 MIT

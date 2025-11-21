@@ -1,6 +1,8 @@
 import os
 import json
+import markdown
 from dotenv import load_dotenv
+from notification import send_digest_email
 # Load environment variables from .env file
 load_dotenv()
 
@@ -11,6 +13,78 @@ from agent import morning_digest_pipeline
 from datetime import datetime
 import asyncio
 import traceback
+
+def _convert_to_html_email(markdown_text: str) -> str:
+    """
+    Converts Markdown to HTML with clean email template and CSS inline.
+    """
+    # Convert Markdown to HTML
+    html_body = markdown.markdown(
+        markdown_text,
+        extensions=['extra', 'nl2br']
+    )
+    
+    # Wrap in clean HTML template with inline CSS for email compatibility
+    html_template = f"""
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {{
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }}
+        h1 {{
+            color: #2c3e50;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+        }}
+        h3 {{
+            color: #34495e;
+            margin-top: 30px;
+            border-left: 4px solid #3498db;
+            padding-left: 10px;
+        }}
+        strong {{
+            color: #2c3e50;
+        }}
+        a {{
+            color: #3498db;
+            text-decoration: none;
+        }}
+        a:hover {{
+            text-decoration: underline;
+        }}
+        ul {{
+            padding-left: 25px;
+        }}
+        li {{
+            margin-bottom: 8px;
+        }}
+        hr {{
+            border: none;
+            border-top: 1px solid #ddd;
+            margin: 30px 0;
+        }}
+    </style>
+</head>
+<body>
+    {html_body}
+    <hr>
+    <p style="color: #7f8c8d; font-size: 0.9em; text-align: center;">
+        Questo digest è stato generato automaticamente da <strong>Morning Digest AI</strong> 🤖
+    </p>
+</body>
+</html>
+"""
+    return html_template
 
 def generate_markdown_email(articles):
     """
@@ -122,10 +196,19 @@ def main():
         report = generate_markdown_email(articles)
         print(report)
         
-        # Save to file
-        with open("daily_digest.md", "w") as f:
-            f.write(report)
-        print("\nReport saved to daily_digest.md")
+        # Convert Markdown to HTML for email
+        html_content = _convert_to_html_email(report)
+        
+        # Send email
+        today = datetime.now().strftime("%d/%m/%Y")
+        subject = f"🌅 Morning Digest AI - {today}"
+        
+        success = send_digest_email(subject, html_content)
+        
+        if success:
+            print("\n✅ Email inviata con successo!")
+        else:
+            print("\n❌ Errore nell'invio email. Controlla i log e le credenziali SMTP.")
     else:
         print("Pipeline finished but no 'final_digest' found in state.")
 
