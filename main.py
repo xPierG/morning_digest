@@ -3,7 +3,6 @@ import json
 from dotenv import load_dotenv
 from dotenv import load_dotenv
 from agent import MorningDigestAgent
-from feedback import FeedbackManager
 
 # Load environment variables from .env file
 load_dotenv()
@@ -20,6 +19,13 @@ def generate_markdown_email(selection):
         else:
             md_output += "\n"
             
+        # Key Takeaways (if enriched)
+        if 'key_takeaways' in doc and doc['key_takeaways']:
+            md_output += "**Key Takeaways:**\n"
+            for point in doc['key_takeaways']:
+                md_output += f"*   {point}\n"
+            md_output += "\n"
+            
         md_output += f"{doc.get('summary', 'Nessun riassunto disponibile.')}\n\n"
         md_output += f"[Leggi l'articolo]({doc['source_url']})\n\n"
         # Feedback links (mock links for now)
@@ -34,7 +40,6 @@ def main():
     
     # 1. Init components
     agent = MorningDigestAgent()
-    feedback_manager = FeedbackManager()
     
     # 2. AI Execution (Fetch + Select)
     print("Running Agent (Tool Use Mode)...")

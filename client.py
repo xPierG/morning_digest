@@ -11,7 +11,7 @@ class ReadwiseClient:
     def fetch_last_24h(self):
         """
         Fetches documents from Readwise Reader updated in the last 24 hours.
-        Fetches from both 'feed' (RSS/Newsletters) and 'new' (Library Inbox).
+        If no token is provided, returns mock data for testing.
         """
         if not self.token:
             print("Warning: No READWISE_TOKEN found. Using mock data.")
@@ -19,41 +19,65 @@ class ReadwiseClient:
 
         # Calculate timestamp for 24h ago
         after_date = (datetime.now() - timedelta(hours=24)).isoformat()
+        
         headers = {"Authorization": f"Token {self.token}"}
         
         all_docs = []
         
-        # 1. Fetch from Feed
-        params_feed = {
-            "updatedAfter": after_date,
-            "location": "feed", 
-            "page_size": 50
-        }
-        try:
-            response = requests.get(f"{self.base_url}/list/", headers=headers, params=params_feed)
-            response.raise_for_status()
-            feed_docs = response.json().get("results", [])
-            for d in feed_docs: d['source_location'] = 'feed'
-            all_docs.extend(feed_docs)
-        except requests.exceptions.RequestException as e:
-            print(f"Error fetching FEED: {e}")
-
-        # 2. Fetch from Library (Inbox/New)
-        params_lib = {
+        # 1. Fetch from 'new' (Feed/Inbox)
+        params_new = {
             "updatedAfter": after_date,
             "location": "new", 
             "page_size": 50
         }
         try:
-            response = requests.get(f"{self.base_url}/list/", headers=headers, params=params_lib)
+            response = requests.get(f"{self.base_url}/list/", headers=headers, params=params_new)
             response.raise_for_status()
-            lib_docs = response.json().get("results", [])
-            for d in lib_docs: d['source_location'] = 'library'
-            all_docs.extend(lib_docs)
+            new_docs = response.json().get("results", [])
+            for d in new_docs: d['source_location'] = 'feed'
+            all_docs.extend(new_docs)
         except requests.exceptions.RequestException as e:
-            print(f"Error fetching LIBRARY: {e}")
+            print(f"Error fetching NEW: {e}")
 
+        # 2. Fetch from 'later' (Library)
+        params_later = {
+            "updatedAfter": after_date,
+            "location": "later", 
+            "page_size": 50
+        }
+        try:
+            response = requests.get(f"{self.base_url}/list/", headers=headers, params=params_later)
+            response.raise_for_status()
+            later_docs = response.json().get("results", [])
+            for d in later_docs: d['source_location'] = 'library'
+            all_docs.extend(later_docs)
+        except requests.exceptions.RequestException as e:
+            print(f"Error fetching LATER: {e}")
+            
         return all_docs
+
+    def fetch_document_details(self, doc_id: str) -> str:
+        """
+        Fetches the full content of a specific document by ID.
+        """
+        if not self.token:
+            return "Mock full content: This is a placeholder for the full text of the article."
+
+        headers = {"Authorization": f"Token {self.token}"}
+        try:
+            # Reader API v3 uses /list/ to get document details by ID
+            params = {"ids": doc_id}
+            response = requests.get(f"{self.base_url}/list/", headers=headers, params=params)
+            response.raise_for_status()
+            results = response.json().get("results", [])
+            if results:
+                data = results[0]
+                # Return HTML content or plain text if available
+                return data.get("html_content") or data.get("summary") or "No content available."
+            return "Document not found."
+        except requests.exceptions.RequestException as e:
+            print(f"Error fetching document details {doc_id}: {e}")
+            return ""
 
     def _get_mock_data(self):
         """Returns a list of mock documents for testing."""
