@@ -3,36 +3,11 @@ from google.genai import types
 from client import ReadwiseClient
 import os
 import json
+from utils import fetch_prompt
 
-# Initialize client
-client = ReadwiseClient()
+SELECTOR_PROMPT_URL = "https://gist.github.com/xPierG/76981876e4289fd9c72262d9dfbb753b/raw/prompt_morning_digest_selector.txt"
 
-# Define tool wrapper
-def fetch_readwise_data():
-    """
-    Fetches the latest articles from Readwise Reader (last 24h).
-    Returns a simplified list of articles with id, title, summary, source_location, and word_count.
-    """
-    print(">> TOOL CALL: Fetching data from Readwise...")
-    docs = client.fetch_last_24h()
-    
-    simplified_docs = []
-    for doc in docs:
-        simplified_docs.append({
-            'id': doc.get('id'),
-            'title': doc.get('title'),
-            'summary': doc.get('summary'),
-            'source_location': doc.get('source_location'),
-            'word_count': doc.get('word_count', 0),
-            'source_url': doc.get('source_url')
-        })
-    return json.dumps(simplified_docs)
-
-# Define Selector Agent
-selector_agent = LlmAgent(
-    name="SelectorAgent",
-    model="gemini-2.0-flash-001",
-    instruction="""
+DEFAULT_SELECTOR_PROMPT = """
     You are the "Morning Digest" AI Editor for a Chief AI Officer.
     
     Your goal is to select exactly 5 articles from the fetched list to send in a daily email.
@@ -63,7 +38,37 @@ selector_agent = LlmAgent(
     - "summary": The original summary.
     
     Output ONLY the JSON.
-    """,
+    """
+
+# Initialize client
+client = ReadwiseClient()
+
+# Define tool wrapper
+def fetch_readwise_data():
+    """
+    Fetches the latest articles from Readwise Reader (last 24h).
+    Returns a simplified list of articles with id, title, summary, source_location, and word_count.
+    """
+    print(">> TOOL CALL: Fetching data from Readwise...")
+    docs = client.fetch_last_24h()
+    
+    simplified_docs = []
+    for doc in docs:
+        simplified_docs.append({
+            'id': doc.get('id'),
+            'title': doc.get('title'),
+            'summary': doc.get('summary'),
+            'source_location': doc.get('source_location'),
+            'word_count': doc.get('word_count', 0),
+            'source_url': doc.get('source_url')
+        })
+    return json.dumps(simplified_docs)
+
+# Define Selector Agent
+selector_agent = LlmAgent(
+    name="SelectorAgent",
+    model="gemini-2.0-flash-001",
+    instruction=fetch_prompt(SELECTOR_PROMPT_URL, DEFAULT_SELECTOR_PROMPT),
     tools=[fetch_readwise_data],
     output_key="selection_result"
 )

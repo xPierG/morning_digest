@@ -1,7 +1,12 @@
 import os
 import json
 import markdown
+import logging
 from dotenv import load_dotenv
+
+# Configure logging immediately to capture import-time logs (like prompt fetching)
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
 from notification import send_digest_email
 # Load environment variables from .env file
 load_dotenv()

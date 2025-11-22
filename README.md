@@ -9,6 +9,7 @@ An intelligent agent that curates a daily "Top 5" reading list from your **Readw
   - **SelectorAgent**: Autonomously fetches and selects exactly 5 articles based on predefined criteria.
   - **EnricherAgent**: Enriches selected articles with full content and generates 3 key takeaways for high-priority items.
 - **📧 Email Delivery**: Automatically sends the digest as a beautifully formatted HTML email via SMTP.
+- **🔄 Dynamic Prompts**: Prompts are fetched from GitHub Gists at runtime, allowing updates without redeploying.
 - **📂 Dual Source**: Fetches content from both your **Feed** (RSS/Newsletters) and **Library** (Saved/Inbox).
 - **🎯 Smart Categorization**:
   - **🤯 Must Read**: Novel concepts and new signals (from Feed).
@@ -70,6 +71,7 @@ The project uses **Google Agent Development Kit (ADK)** with a modular, sequenti
 - **`agents/enricher.py`**: `EnricherAgent` - Enriches "Must Read" and "Long Read" articles with full content and generates 3 key takeaways.
 - **`agent.py`**: `MorningDigestPipeline` - A `SequentialAgent` that orchestrates the two specialized agents.
 - **`client.py`**: Handles interactions with the Readwise API (fetching articles and full content).
+- **`utils.py`**: Fetches agent prompts from external GitHub Gists with fallback to local defaults.
 - **`notification.py`**: Manages email delivery via SMTP with TLS.
 - **`main.py`**: Entry point using `InMemoryRunner` to execute the ADK pipeline asynchronously, converts Markdown to HTML, and sends email.
 

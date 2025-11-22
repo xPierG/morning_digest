@@ -1,23 +1,11 @@
 from google.adk.agents import LlmAgent
 from client import ReadwiseClient
 import json
+from utils import fetch_prompt
 
-# Initialize client
-client = ReadwiseClient()
+ENRICHER_PROMPT_URL = "https://gist.githubusercontent.com/xPierG/b7a6f58a369f49120417e3c405973d75/raw/prompt_morning_digest_enricher.txt"
 
-# Define tool wrapper
-def fetch_full_content(doc_id: str):
-    """
-    Fetches the full content of a specific document by ID using Readwise API.
-    """
-    print(f">> TOOL CALL: Fetching full content for {doc_id}...")
-    return client.fetch_document_details(doc_id)
-
-# Define Enricher Agent
-enricher_agent = LlmAgent(
-    name="EnricherAgent",
-    model="gemini-2.0-flash-001",
-    instruction="""
+DEFAULT_ENRICHER_PROMPT = """
     You are the "Morning Digest" AI Researcher.
     
     You will receive a JSON object containing a list of selected articles under the key "selection".
@@ -45,7 +33,24 @@ enricher_agent = LlmAgent(
     OUTPUT FORMAT:
     Return the exact same JSON structure, but with the added "key_takeaways" field for the target articles.
     Output ONLY the JSON.
-    """,
+    """
+
+# Initialize client
+client = ReadwiseClient()
+
+# Define tool wrapper
+def fetch_full_content(doc_id: str):
+    """
+    Fetches the full content of a specific document by ID using Readwise API.
+    """
+    print(f">> TOOL CALL: Fetching full content for {doc_id}...")
+    return client.fetch_document_details(doc_id)
+
+# Define Enricher Agent
+enricher_agent = LlmAgent(
+    name="EnricherAgent",
+    model="gemini-2.0-flash-001",
+    instruction=fetch_prompt(ENRICHER_PROMPT_URL, DEFAULT_ENRICHER_PROMPT),
     tools=[fetch_full_content],
     output_key="final_digest"
 )

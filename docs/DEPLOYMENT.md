@@ -15,12 +15,12 @@ The application relies on the following environment variables, which must be set
 | Variable | Description |
 |----------|-------------|
 | `GOOGLE_API_KEY` | API key for Google Gemini |
-| `SMTP_SERVER` | Hostname of the SMTP server |
+| `READWISE_TOKEN` | API token for Readwise Reader |
+| `EMAIL_SENDER_ADDRESS` | Sender email address (Gmail) |
+| `EMAIL_SENDER_APP_PASSWORD` | App Password for Gmail authentication |
+| `EMAIL_RECIPIENT_ADDRESS` | Recipient email address |
+| `SMTP_SERVER` | Hostname of the SMTP server (e.g., smtp.gmail.com) |
 | `SMTP_PORT` | Port for the SMTP server (e.g., 587) |
-| `SMTP_USERNAME` | Username for SMTP authentication |
-| `SMTP_PASSWORD` | Password for SMTP authentication |
-| `EMAIL_FROM` | Sender email address |
-| `EMAIL_TO` | Recipient email address |
 
 ## Deployment Script
 
