@@ -33,6 +33,21 @@ gcloud builds submit --tag gcr.io/$PROJECT_ID/$APP_NAME .
 
 # 2. Deploy as a Cloud Run Job
 echo ">> Deploying Cloud Run Job..."
+echo ""
+echo "IMPORTANT: After deployment, you MUST set the environment variables."
+echo "Run the following command to configure secrets:"
+echo ""
+echo "gcloud run jobs update $APP_NAME \\"
+echo "  --region $REGION \\"
+echo "  --set-env-vars=\"GOOGLE_API_KEY=your_gemini_key,\\"
+echo "READWISE_TOKEN=your_readwise_token,\\"
+echo "EMAIL_SENDER_ADDRESS=your_email@gmail.com,\\"
+echo "EMAIL_SENDER_APP_PASSWORD=your_app_password,\\"
+echo "EMAIL_RECIPIENT_ADDRESS=recipient@email.com,\\"
+echo "SMTP_SERVER=smtp.gmail.com,\\"
+echo "SMTP_PORT=587\""
+echo ""
+
 gcloud run jobs deploy $APP_NAME \
     --image gcr.io/$PROJECT_ID/$APP_NAME \
     --region $REGION \

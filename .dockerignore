@@ -1,0 +1,9 @@
+.env
+.git
+.gitignore
+__pycache__
+*.pyc
+.venv
+daily_digest.md
+README*.md
+deploy_job.sh
