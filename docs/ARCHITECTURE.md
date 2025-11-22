@@ -18,13 +18,18 @@ graph TD
     
     subgraph Cloud Run Job
         Main[main.py]
-        Agent[agent.py]
+        subgraph Agents
+            Selector[SelectorAgent]
+            Enricher[EnricherAgent]
+        end
         Client[client.py]
         Notify[notification.py]
     end
     
-    Main --> Agent
-    Agent --> Client
+    Main --> Selector
+    Main --> Enricher
+    Selector --> Client
+    Enricher --> Client
     Main --> Notify
 ```
 
@@ -32,15 +37,18 @@ graph TD
 
 ### 1. Core Application (`main.py`)
 The entry point of the application. It orchestrates the workflow:
-- Initializes the agent and client.
-- Fetches data (currently simulated or from configured sources).
-- Invokes the AI agent to generate the digest.
+- Initializes the agent pipeline (Selector -> Enricher).
+- Fetches data via the Selector agent.
+- Enriches selected articles via the Enricher agent.
 - Formats the output.
 - Triggers the email notification.
 
-### 2. AI Agent (`agent.py` & `client.py`)
-- **Agent**: Encapsulates the logic for interacting with the LLM. It constructs prompts and handles the conversation flow.
-- **Client**: Manages the low-level API calls to Google Gemini (or other configured LLMs).
+### 2. AI Agents (`agents/`)
+The logic is split into specialized agents:
+- **SelectorAgent** (`agents/selector.py`): Responsible for fetching raw data and selecting the most relevant articles based on strict criteria (e.g., "Must Read", "CEO Relevance").
+- **EnricherAgent** (`agents/enricher.py`): Takes the selected articles and adds value (key takeaways, summary refinement).
+
+### 3. Client (`client.py`)
 
 ### 3. Notification System (`notification.py`)
 Handles the delivery of the generated digest.

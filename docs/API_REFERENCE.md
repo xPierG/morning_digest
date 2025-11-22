@@ -8,14 +8,25 @@ The entry point for the application.
 
 - **`main()`**: Orchestrates the daily digest generation process. It initializes the `Agent` and `Client`, fetches data, generates the digest, and triggers the notification.
 
-## `agent.py`
+## `agents` Package
 
-Contains the logic for the AI agent.
+Contains the specialized AI agents.
 
-### `class Agent`
+### `agents.selector`
 
-- **`__init__(client: Client)`**: Initializes the agent with a client instance.
-- **`generate_digest(context: str) -> str`**: Generates a daily digest based on the provided context string. It constructs the prompt and calls the client to get the response.
+- **`selector_agent`**: An `LlmAgent` configured to select the top 5 articles from the fetched data based on priority categories.
+- **`fetch_readwise_data()`**: Tool function to fetch the latest articles from Readwise (last 24h).
+
+### `agents.enricher`
+
+- **`enricher_agent`**: An `LlmAgent` configured to process selected articles and add "Key Takeaways" and reasoning.
+
+## `agent.py` (Legacy/Wrapper)
+
+Contains the pipeline definition.
+
+### `morning_digest_pipeline`
+- Defines the flow between `SelectorAgent` and `EnricherAgent`.
 
 ## `client.py`
 

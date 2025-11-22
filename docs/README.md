@@ -18,7 +18,8 @@ Refer to the main [README](../README.md) in the root directory for development s
 ## Project Structure
 
 - \`main.py\`: Main entry point for the application.
-- \`agent.py\`: Core logic for the AI agent.
+- \`agents/\`: Directory containing specialized AI agents (`selector.py`, `enricher.py`).
+- \`agent.py\`: Pipeline definition.
 - \`client.py\`: Client for interacting with external APIs (e.g., Google Gemini).
 - \`notification.py\`: Module for handling email notifications.
 - \`deploy_job.sh\`: Script for deploying the application to Cloud Run.
